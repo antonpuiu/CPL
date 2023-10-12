@@ -10,11 +10,25 @@
 *)
 class Fibo {
     fibo_rec(n : Int) : Int {
-        0
+        if n <= 1 then 1 else fibo_rec(n - 1) + fibo_rec(n - 2) fi
     };
 
     fibo_iter(n : Int) : Int {
-        0
+        let a : Int <- 0,
+            b : Int <- 1,
+            c : Int <- a
+        in
+            {
+                while (0 <= n)
+                loop
+                    {
+                        c <- a + b;
+                        a <- b;
+                        b <- c;
+                        n <- n - 1;
+                    } pool;
+                a;
+            }
     };
 };
     
@@ -57,6 +71,14 @@ class List inherits IO {
         new Cons.init(h, self)
     };
 
+    append(list : List) : List { list };
+
+    reverse() : List { self };
+
+    map(function : Map) : List { self };
+
+    apply(filter : Filter) : List { self };
+
     print() : IO { out_string("\n") };
 };
 
@@ -85,6 +107,14 @@ class Cons inherits List {
     hd() : Int { hd };
 
     tl() : List { tl };
+
+    append(list : List) : List { tl.append(list).cons(hd) };
+
+    reverse() : List { tl.reverse().append(new List.cons(hd)) };
+
+    map(function : Map) : List { function.apply(self) };
+
+    apply(filter : Filter) : List { filter.apply(self) };
 
     print() : IO {
         {
@@ -123,13 +153,64 @@ class Cons inherits List {
     Repetați pentru clasa Filter, cu o implementare la alegere a metodei apply.
 *)
 
+class Map {
+    func(x : Int) : Int { { abort(); 0; } };
+
+    apply(list : List) : List {
+        case list of
+            c : Cons => new Cons.init(func(c.hd()), apply(c.tl()));
+            l : List => new List;
+        esac
+    };
+};
+
+class MapAddOne inherits Map {
+    func(x: Int) : Int { x + 1 };
+};
+
+class Filter {
+    condition(x : Int) : Bool { { abort(); false; } };
+
+    apply(list: List) : List {
+        case list of
+            c : Cons => {
+                if condition(c.hd())
+                then
+                    new Cons.init(c.hd(), apply(c.tl()))
+                else
+                    apply(c.tl())
+                fi;
+            };
+            l : List => new List;
+        esac
+    };
+};
+
+class FilterGETwo inherits Filter {
+    condition(x : Int) : Bool { 2 <= x };
+};
+
+class FilterEqTwo inherits Filter {
+    condition(x : Int) : Bool { 2 = x };
+};
+
 -- Testați în main.
 class Main inherits IO {
     main() : Object {
         let list : List <- new List.cons(1).cons(2).cons(3),
-            temp : List <- list
+            temp : List <- list,
+            fibo : Fibo <- new Fibo
         in
             {
+                out_string("Fibo testing:\n");
+
+                out_string("fibo_rec(5) = ");
+                out_int(fibo.fibo_rec(5));
+                out_string("\n");
+                out_string("fibo_iter(5) = ");
+                out_int(fibo.fibo_iter(5));
+                out_string("\n");
+
                 -- Afișare utilizând o buclă while. Mecanismul de dynamic
                 -- dispatch asigură alegerea implementării corecte a metodei
                 -- isEmpty, din clasele List, respectiv Cons.
@@ -145,6 +226,22 @@ class Main inherits IO {
 
                 -- Afișare utilizând metoda din clasele pe liste.
                 list.print();
+
+                out_string("Testing append: ");
+                list.append(list).print();
+
+                out_string("Testing reverse: ");
+                list.reverse().print();
+
+
+                out_string("Testing add one: ");
+                new MapAddOne.apply(list).print();
+
+                out_string("Testing filter >= 2: ");
+                new FilterGETwo.apply(list).print();
+
+                out_string("Testing filter == 2: ");
+                new FilterEqTwo.apply(list).print();
             }
     };
 };
