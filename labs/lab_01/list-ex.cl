@@ -153,7 +153,7 @@ class Cons inherits List {
     Repetați pentru clasa Filter, cu o implementare la alegere a metodei apply.
 *)
 
-class Map {
+class Map inherits IO {
     func(x : Int) : Int { { abort(); 0; } };
 
     apply(list : List) : List {
@@ -165,7 +165,17 @@ class Map {
 };
 
 class MapAddOne inherits Map {
-    func(x: Int) : Int { x + 1 };
+    count : Int <- 0;
+
+    func(x: Int) : Int { { count <- count + 1; x + 1; } };
+
+    print() : IO {
+        {
+            out_string(" ");
+            out_int(count);
+            out_string("\n");
+        }
+    };
 };
 
 class Filter {
@@ -199,7 +209,8 @@ class Main inherits IO {
     main() : Object {
         let list : List <- new List.cons(1).cons(2).cons(3),
             temp : List <- list,
-            fibo : Fibo <- new Fibo
+            fibo : Fibo <- new Fibo,
+            map  : MapAddOne <- new MapAddOne
         in
             {
                 out_string("Fibo testing:\n");
@@ -235,7 +246,10 @@ class Main inherits IO {
 
 
                 out_string("Testing add one: ");
-                new MapAddOne.apply(list).print();
+                map.apply(list).print();
+
+                out_string("Printing the count:");
+                map.print();
 
                 out_string("Testing filter >= 2: ");
                 new FilterGETwo.apply(list).print();
