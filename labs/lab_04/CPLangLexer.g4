@@ -12,11 +12,18 @@ lexer grammar CPLangLexer;
 /* Cuvânt cheie.
  */
 IF : 'if';
-FI : 'fi';
 THEN : 'then';
 ELSE : 'else';
-TRUE : 'true';
-FALSE : 'false';
+FI: 'fi';
+
+BOOL : 'true' | 'false';
+
+TYPE : 'Int' | 'Float' | 'Bool';
+
+/* Identificator.
+ */
+fragment LETTER : [a-zA-Z];
+ID : (LETTER | '_')(LETTER | '_' | DIGIT)*;
 
 /* Număr întreg.
  * 
@@ -26,49 +33,11 @@ FALSE : 'false';
 fragment DIGIT : [0-9];
 INT : DIGIT+;
 
-/* Identificator.
- */
-fragment UPPERCASE: [A-Z];
-fragment LOWERCASE: [a-z];
-fragment LETTER: UPPERCASE | LOWERCASE;
-TYPE: UPPERCASE(LETTER | '_' | DIGIT)*;
-ID : (LOWERCASE | '_')(LETTER | '_' | DIGIT)*;
-
-fragment VAR_SPEC: TYPE ID;
-
-// VAR_DEF : VAR_SPEC SC;
-// FUNC_CALL : ID LPAREN (ID? | ID (COMMA ID)*) RPAREN SC;
-
 /* Număr real.
  */
 fragment DIGITS : DIGIT+;
-fragment FRACTION : (DOT DIGITS+);
-fragment EXPONENT : ('e' (PLUS | MINUS)? DIGITS)?;
-REAL : (DIGITS FRACTION? EXPONENT) | (DIGITS DOT) | (FRACTION EXPONENT);
-
-SC : ';';
-ASSIGN : '=';
-
-/* Operators */
-PLUS : '+';
-MINUS : '-';
-MULT : '*';
-DIV : '/';
-
-LPAREN : '(';
-RPAREN : ')';
-LBRACKET : '{';
-RBRACKET : '}';
-COMMA : ',';
-DOT : '.';
-
-LT : '<';
-GT : '>';
-LE : '<=';
-GE : '>=';
-EQUAL : '==';
-
-NEWLINE :'\r'? '\n';
+fragment EXPONENT : 'e' ('+' | '-')? DIGITS;
+FLOAT : (DIGITS ('.' DIGITS?)? | '.' DIGITS) EXPONENT?;
 
 /* Șir de caractere.
  * 
@@ -78,15 +47,50 @@ NEWLINE :'\r'? '\n';
  * nu a fost întâlnit caracterul ulterior, '"'.
  * 
  * Acoladele de la final pot conține secvențe arbitrare de cod Java,
- * care vor fi executate la întâlnirea acestui token.
+ * care vor fi executate la întâlnirea acestui token. 
  */
 STRING : '"' ('\\"' | .)*? '"'
     { System.out.println("there are no strings in CPLang, but shhh.."); };
 
-// BLOCK_COMMENT : '/*' (BLOCK_COMMENT | .)*? '*/' -> skip;
+SEMI : ';';
 
-COMMENT : '//' .*? '\n' -> skip;
-BLOCK_COMMENT : NEWLINE (BLOCK_COMMENT | .)*? (NEWLINE {skip(); } | EOF {System.err.println("Wrong comment."); skip();});
+COMMA : ',';
+
+ASSIGN : '=';
+
+LPAREN : '(';
+
+RPAREN : ')';
+
+LBRACE : '{';
+
+RBRACE : '}';
+
+PLUS : '+';
+
+MINUS : '-';
+
+MULT : '*';
+
+DIV : '/';
+
+EQUAL : '==';
+
+LT : '<';
+
+LE : '<=';
+
+fragment NEW_LINE : '\r'? '\n';
+
+LINE_COMMENT
+    : '//' .*? (NEW_LINE | EOF) -> skip
+    ;
+
+BLOCK_COMMENT
+    : '/*'
+      (BLOCK_COMMENT | .)*?
+      ('*/' | EOF { System.err.println("EOF in comment"); }) -> skip
+    ;
 
 /* Spații albe.
  * 
