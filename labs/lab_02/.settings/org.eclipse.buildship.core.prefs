@@ -1,5 +1,5 @@
-arguments=--init-script /home/kn07/.config/emacs/.local/etc/lsp/eclipse.jdt.ls/config_linux/org.eclipse.osgi/51/0/.cp/gradle/init/init.gradle --init-script /home/kn07/.config/emacs/.local/etc/lsp/eclipse.jdt.ls/config_linux/org.eclipse.osgi/51/0/.cp/gradle/protobuf/init.gradle
-auto.sync=true
+arguments=
+auto.sync=false
 build.scans.enabled=false
 connection.gradle.distribution=GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(/usr/share/java/gradle))
 connection.project.dir=

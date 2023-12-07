@@ -1,0 +1,7 @@
+repositories {
+    flatDir {
+        dirs '/usr/local/lib'
+    }
+}
+
+dependencies { implementation name: 'antlr4' }
